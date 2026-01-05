@@ -1,0 +1,194 @@
+{
+  "Books": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "1" },
+          "title": { "S": "The Midnight Library" },
+          "author": { "S": "Matt Haig" },
+          "genre": { "S": "Fiction" },
+          "description": {
+            "S": "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg"
+          },
+          "rating": { "N": "4.2" },
+          "publishedYear": { "N": "2020" },
+          "isbn": { "S": "978-0525559474" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "2" },
+          "title": { "S": "Project Hail Mary" },
+          "author": { "S": "Andy Weir" },
+          "genre": { "S": "Science Fiction" },
+          "description": {
+            "S": "Ryland Grace is the sole survivor on a desperate, last-chance mission—and if he fails, humanity and the earth itself will perish."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1597695864i/54493401.jpg"
+          },
+          "rating": { "N": "4.8" },
+          "publishedYear": { "N": "2021" },
+          "isbn": { "S": "978-0593135204" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "3" },
+          "title": { "S": "Dune" },
+          "author": { "S": "Frank Herbert" },
+          "genre": { "S": "Science Fiction" },
+          "description": {
+            "S": "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the 'spice' melange."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1555447414i/44767458.jpg"
+          },
+          "rating": { "N": "4.7" },
+          "publishedYear": { "N": "1965" },
+          "isbn": { "S": "978-0441172719" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "4" },
+          "title": { "S": "1984" },
+          "author": { "S": "George Orwell" },
+          "genre": { "S": "Dystopian" },
+          "description": {
+            "S": "Among the seminal texts of the 20th century, Nineteen Eighty-Four is a rare work that grows more haunting as its futuristic purgatory becomes more real."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657781256i/61215351.jpg"
+          },
+          "rating": { "N": "4.6" },
+          "publishedYear": { "N": "1949" },
+          "isbn": { "S": "978-0451524935" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "5" },
+          "title": { "S": "The Great Gatsby" },
+          "author": { "S": "F. Scott Fitzgerald" },
+          "genre": { "S": "Classic" },
+          "description": {
+            "S": "The Great Gatsby, F. Scott Fitzgerald's third book, stands as the supreme achievement of his career."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1490528560i/4671.jpg"
+          },
+          "rating": { "N": "3.9" },
+          "publishedYear": { "N": "1925" },
+          "isbn": { "S": "978-0743273565" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "6" },
+          "title": { "S": "Pride and Prejudice" },
+          "author": { "S": "Jane Austen" },
+          "genre": { "S": "Romance" },
+          "description": {
+            "S": "Since its immediate success in 1813, Pride and Prejudice has remained one of the most popular novels in the English language."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1320399351i/1885.jpg"
+          },
+          "rating": { "N": "4.5" },
+          "publishedYear": { "N": "1813" },
+          "isbn": { "S": "978-0141439518" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "7" },
+          "title": { "S": "The Hobbit" },
+          "author": { "S": "J.R.R. Tolkien" },
+          "genre": { "S": "Fantasy" },
+          "description": {
+            "S": "A great modern classic and the prelude to The Lord of the Rings."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1546071216i/5907.jpg"
+          },
+          "rating": { "N": "4.3" },
+          "publishedYear": { "N": "1937" },
+          "isbn": { "S": "978-0547928227" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "8" },
+          "title": { "S": "The Fellowship of the Ring" },
+          "author": { "S": "J.R.R. Tolkien" },
+          "genre": { "S": "Fantasy" },
+          "description": {
+            "S": "The first volume in The Lord of the Rings, the tale of the great war against the Dark Lord Sauron."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1654215925i/61215384.jpg"
+          },
+          "rating": { "N": "4.5" },
+          "publishedYear": { "N": "1954" },
+          "isbn": { "S": "978-0547928210" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "9" },
+          "title": { "S": "Harry Potter and the Sorcerer's Stone" },
+          "author": { "S": "J.K. Rowling" },
+          "genre": { "S": "Fantasy" },
+          "description": {
+            "S": "Harry Potter's life is miserable. His parents are dead and he's stuck with his heartless relatives, who force him to live in a tiny closet under the stairs."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1474154022i/3.jpg"
+          },
+          "rating": { "N": "4.9" },
+          "publishedYear": { "N": "1997" },
+          "isbn": { "S": "978-0590353427" }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "10" },
+          "title": { "S": "To Kill a Mockingbird" },
+          "author": { "S": "Harper Lee" },
+          "genre": { "S": "Fiction" },
+          "description": {
+            "S": "The unforgettable novel of a childhood in a sleepy Southern town and the crisis of conscience that rocked it."
+          },
+          "coverImage": {
+            "S": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1553383690i/2657.jpg"
+          },
+          "rating": { "N": "4.8" },
+          "publishedYear": { "N": "1960" },
+          "isbn": { "S": "978-0061120084" }
+        }
+      }
+    }
+  ]
+}
