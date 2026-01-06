@@ -2,18 +2,25 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Modal } from '@/components/common/Modal';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { getBooks, createBook, deleteBook } from '@/services/api';
+import { getBooks, createBook, deleteBook, getStats, updateBook } from '@/services/api';
 import { Book } from '@/types';
 import { handleApiError, showSuccess } from '@/utils/errorHandling';
 
-/**
- * Admin page component for managing books and viewing metrics
- */
 export function Admin() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [listCount, setListCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+
+  const [editingBookId, setEditingBookId] = useState<string | null>(null);
+
   const [newBook, setNewBook] = useState({
     title: '',
     author: '',
@@ -26,14 +33,16 @@ export function Admin() {
   });
 
   useEffect(() => {
-    loadBooks();
+    loadDashboardData();
   }, []);
 
-  const loadBooks = async () => {
+  const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      const data = await getBooks();
-      setBooks(data);
+      const [booksData, statsData] = await Promise.all([getBooks(), getStats()]);
+      setBooks(booksData);
+      setListCount(statsData.totalLists);
+      setUserCount(statsData.totalUsers);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -41,37 +50,70 @@ export function Admin() {
     }
   };
 
-  const handleCreateBook = async () => {
+  const handleEditClick = (book: Book) => {
+    setEditingBookId(book.id);
+    setNewBook({
+      title: book.title,
+      author: book.author,
+      genre: book.genre,
+      description: book.description || '',
+      coverImage: book.coverImage || '',
+      rating: book.rating || 0,
+      publishedYear: book.publishedYear || new Date().getFullYear(),
+      isbn: book.isbn || '',
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveBook = async () => {
     if (!newBook.title || !newBook.author) {
       alert('Please fill in required fields');
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      // TODO: Replace with Lambda API call
-      const created = await createBook(newBook);
-      setBooks([...books, created]);
-      setIsModalOpen(false);
-      resetForm();
-      showSuccess('Book added successfully!');
+      if (editingBookId) {
+        const updated = await updateBook(editingBookId, newBook);
+        setBooks(books.map((b) => (b.id === editingBookId ? updated : b)));
+        showSuccess('Book updated successfully!');
+      } else {
+        const created = await createBook(newBook);
+        setBooks([...books, created]);
+        showSuccess('Book added successfully!');
+      }
+      handleCloseModal();
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteBook = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this book?')) {
-      return;
-    }
+  const handleDeleteClick = (id: string) => {
+    setBookToDelete(id);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!bookToDelete) return;
 
     try {
-      // TODO: Replace with Lambda API call
-      await deleteBook();
-      setBooks(books.filter((book) => book.id !== id));
+      await deleteBook(bookToDelete);
+      setBooks(books.filter((book) => book.id !== bookToDelete));
       showSuccess('Book deleted successfully!');
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setIsDeleteConfirmOpen(false);
+      setBookToDelete(null);
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingBookId(null);
+    resetForm();
   };
 
   const resetForm = () => {
@@ -103,25 +145,25 @@ export function Admin() {
           <p className="text-slate-600 text-lg">Manage books and view system metrics</p>
         </div>
 
-        {/* Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
             <h3 className="text-lg font-semibold mb-2 opacity-90">Total Books</h3>
             <p className="text-5xl font-bold">{books.length}</p>
           </div>
+
           <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
             <h3 className="text-lg font-semibold mb-2 opacity-90">Total Users</h3>
-            <p className="text-5xl font-bold">42</p>
-            <p className="text-sm mt-1 opacity-75">Placeholder data</p>
+            <p className="text-5xl font-bold">{userCount}</p>
+            <p className="text-sm mt-1 opacity-75">Live from Cognito</p>
           </div>
+
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
             <h3 className="text-lg font-semibold mb-2 opacity-90">Active Reading Lists</h3>
-            <p className="text-5xl font-bold">18</p>
-            <p className="text-sm mt-1 opacity-75">Placeholder data</p>
+            <p className="text-5xl font-bold">{listCount}</p>
+            <p className="text-sm mt-1 opacity-75">Live from DynamoDB</p>
           </div>
         </div>
 
-        {/* Books Management */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-slate-900">Manage Books</h2>
@@ -144,19 +186,21 @@ export function Admin() {
               <tbody>
                 {books.map((book) => (
                   <tr key={book.id} className="border-b hover:bg-slate-50">
-                    <td className="py-3 px-4">{book.title}</td>
+                    <td className="py-3 px-4 font-medium">{book.title}</td>
                     <td className="py-3 px-4">{book.author}</td>
-                    <td className="py-3 px-4">{book.genre}</td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-1 bg-slate-100 rounded text-xs">{book.genre}</span>
+                    </td>
                     <td className="py-3 px-4">{book.rating}</td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <Button variant="secondary" size="sm">
+                        <Button variant="secondary" size="sm" onClick={() => handleEditClick(book)}>
                           Edit
                         </Button>
                         <Button
                           variant="danger"
                           size="sm"
-                          onClick={() => handleDeleteBook(book.id)}
+                          onClick={() => handleDeleteClick(book.id)}
                         >
                           Delete
                         </Button>
@@ -169,9 +213,12 @@ export function Admin() {
           </div>
         </div>
 
-        {/* Add Book Modal */}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Book">
-          <div className="max-h-[60vh] overflow-y-auto">
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={editingBookId ? 'Edit Book' : 'Add New Book'}
+        >
+          <div className="max-h-[60vh] overflow-y-auto pr-2">
             <Input
               label="Title"
               type="text"
@@ -179,7 +226,6 @@ export function Admin() {
               onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
               required
             />
-
             <Input
               label="Author"
               type="text"
@@ -187,7 +233,6 @@ export function Admin() {
               onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
               required
             />
-
             <Input
               label="Genre"
               type="text"
@@ -195,7 +240,6 @@ export function Admin() {
               onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
               required
             />
-
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
               <textarea
@@ -204,48 +248,62 @@ export function Admin() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px] resize-none"
               />
             </div>
-
             <Input
               label="Cover Image URL"
               type="text"
               value={newBook.coverImage}
               onChange={(e) => setNewBook({ ...newBook, coverImage: e.target.value })}
             />
-
-            <Input
-              label="Rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              value={newBook.rating}
-              onChange={(e) => setNewBook({ ...newBook, rating: parseFloat(e.target.value) })}
-            />
-
-            <Input
-              label="Published Year"
-              type="number"
-              value={newBook.publishedYear}
-              onChange={(e) => setNewBook({ ...newBook, publishedYear: parseInt(e.target.value) })}
-            />
-
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Rating (0-5)"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                value={newBook.rating}
+                onChange={(e) => setNewBook({ ...newBook, rating: parseFloat(e.target.value) })}
+              />
+              <Input
+                label="Published Year"
+                type="number"
+                value={newBook.publishedYear}
+                onChange={(e) =>
+                  setNewBook({ ...newBook, publishedYear: parseInt(e.target.value) })
+                }
+              />
+            </div>
             <Input
               label="ISBN"
               type="text"
               value={newBook.isbn}
               onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })}
             />
-
             <div className="flex gap-3 mt-6">
-              <Button variant="primary" onClick={handleCreateBook} className="flex-1">
-                Add Book
+              <Button
+                variant="primary"
+                onClick={handleSaveBook}
+                className="flex-1"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : editingBookId ? 'Update Book' : 'Add Book'}
               </Button>
-              <Button variant="secondary" onClick={() => setIsModalOpen(false)} className="flex-1">
+              <Button variant="secondary" onClick={handleCloseModal} className="flex-1">
                 Cancel
               </Button>
             </div>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isDeleteConfirmOpen}
+          onClose={() => setIsDeleteConfirmOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Book"
+          message="Are you sure you want to delete this book? This action cannot be undone and will permanently remove the book from the database."
+          confirmText="Delete Book"
+          variant="danger"
+        />
       </div>
     </div>
   );

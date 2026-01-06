@@ -1,16 +1,10 @@
 /**
- * Error handling utilities
+ * Error handling utilities with react-hot-toast integration
  */
+import toast from 'react-hot-toast';
 
 /**
- * Handles API errors and displays user-friendly messages
- *
- * TODO: Integrate with a proper toast notification library
- * Recommended: react-hot-toast or react-toastify
- *
- * Installation: npm install react-hot-toast
- * Usage: import toast from 'react-hot-toast';
- *        toast.error(message);
+ * Handles API errors and displays modern toast notifications
  */
 export function handleApiError(error: unknown): void {
   let message = 'An unexpected error occurred';
@@ -21,17 +15,22 @@ export function handleApiError(error: unknown): void {
     message = error;
   }
 
-  // For now, use alert (replace with toast notification)
-  alert(`Error: ${message}`);
+  toast.error(message, {
+    duration: 4000,
+    position: 'top-right',
+  });
+
   console.error('API Error:', error);
 }
 
 /**
- * Shows a success message to the user
- *
- * TODO: Replace with toast.success(message)
+ * Shows a modern success toast to the user
  */
 export function showSuccess(message: string): void {
-  alert(`Success: ${message}`);
+  toast.success(message, {
+    duration: 3000,
+    position: 'top-right',
+  });
+
   console.log('Success:', message);
 }

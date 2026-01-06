@@ -1,7 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { signIn, signUp, signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
-import { Hub } from 'aws-amplify/utils'; // ✅ EKLENDİ: Olay dinleyicisi
+import {
+  signIn,
+  signUp,
+  signOut,
+  getCurrentUser,
+  fetchUserAttributes,
+  fetchAuthSession,
+} from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 import { User } from '@/types';
 
 export interface AuthContextType {
@@ -24,21 +31,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. İlk açılışta kontrol et
     checkUser();
 
-    // 2. ✅ EKLENDİ: Hub ile anlık değişimleri dinle
-    // Bu sayede F5 atmadan Header güncellenecek
     const listener = Hub.listen('auth', (data) => {
       const { payload } = data;
       if (payload.event === 'signedIn') {
-        checkUser(); // Giriş oldu, verileri çek!
+        checkUser();
       } else if (payload.event === 'signedOut') {
-        setUser(null); // Çıkış oldu, temizle!
+        setUser(null);
       }
     });
 
-    // Temizlik (Component ölürse dinlemeyi bırak)
     return () => listener();
   }, []);
 
@@ -46,15 +49,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const currentUser = await getCurrentUser();
       const attributes = await fetchUserAttributes();
+      const session = await fetchAuthSession();
+
+      const accessGroups =
+        (session.tokens?.accessToken?.payload['cognito:groups'] as string[]) || [];
+      const idGroups = (session.tokens?.idToken?.payload['cognito:groups'] as string[]) || [];
+      const allGroups = [...new Set([...accessGroups, ...idGroups])];
+
+      console.log('Kullanıcı Rol Grupları:', allGroups);
+
+      const isAdmin = allGroups.includes('admin');
 
       setUser({
         id: currentUser.userId,
         email: attributes.email || '',
         name: attributes.name || currentUser.username,
-        role: 'user',
+        role: isAdmin ? 'admin' : 'user',
         createdAt: new Date().toISOString(),
       });
-    } catch {
+    } catch (error) {
+      console.error('Oturum doğrulama hatası:', error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -64,14 +78,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Hub dinlediği için burada ekstra checkUser çağırmamıza gerek kalmaz ama
-      // garanti olsun diye bırakıyoruz.
       const { isSignedIn } = await signIn({ username: email, password });
       if (isSignedIn) {
         await checkUser();
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Giriş hatası:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -82,9 +94,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true);
     try {
       await signOut();
-      // Hub 'signedOut' olayını yakalayacağı için setUser(null) orada yapılır
+      setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Çıkış hatası:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -105,7 +117,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         },
       });
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Kayıt hatası:', error);
       throw error;
     } finally {
       setIsLoading(false);

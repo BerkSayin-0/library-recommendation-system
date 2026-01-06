@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Navigation component props
@@ -9,18 +10,21 @@ interface NavigationProps {
 
 /**
  * Modern Navigation component with gradient active states
- *
- * Displays navigation links for all main routes
- * Responsive: horizontal on desktop, vertical on mobile
  */
 export function Navigation({ mobile = false }: NavigationProps) {
+  const { user } = useAuth();
+
+  // Temel linkler
   const links = [
     { to: '/', label: 'Home' },
     { to: '/books', label: 'Books' },
     { to: '/recommendations', label: 'Recommendations' },
     { to: '/reading-lists', label: 'Reading Lists' },
-    { to: '/admin', label: 'Admin' },
   ];
+
+  if (user?.role === 'admin') {
+    links.push({ to: '/admin', label: 'Admin' });
+  }
 
   const baseClasses = 'transition-all duration-300 font-semibold';
   const activeClasses = mobile

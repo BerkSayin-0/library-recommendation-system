@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext'; // ✅ YENİ EKLENDİ
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
@@ -16,13 +17,15 @@ import { ReadingListDetail } from './pages/ReadingListDetail';
 import { VerifyEmail } from './pages/VerifyEmail';
 
 /**
- * Main App component with routing and layout
+ * Main App component with routing, layout and notifications
  */
 function App() {
   return (
-    // ✅ AuthProvider eklendi: Artık Header giriş yapıldığını anlayabilir.
     <AuthProvider>
       <BrowserRouter>
+        {/* Global bildirim konteynırı - Ekranın üstünde mesajları gösterir */}
+        <Toaster position="top-right" reverseOrder={false} />
+
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-1">
@@ -31,6 +34,8 @@ function App() {
               <Route path="/books" element={<Books />} />
               <Route path="/books/:id" element={<BookDetail />} />
               <Route path="/recommendations" element={<Recommendations />} />
+
+              {/* Sadece giriş yapmış kullanıcılar görebilir */}
               <Route
                 path="/reading-lists"
                 element={
@@ -39,8 +44,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+
+              {/* SADECE ADMIN rolüne sahip kullanıcılar girebilir */}
               <Route
                 path="/admin"
                 element={
@@ -49,9 +57,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<NotFound />} />
+
               <Route path="/reading-lists/:id" element={<ReadingListDetail />} />
               <Route path="/verify" element={<VerifyEmail />} />
+
+              {/* Hatalı URL'ler için 404 sayfası */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
           <Footer />

@@ -7,8 +7,8 @@ import './index.css';
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: 'us-east-1_H3uzjmhz7',
-      userPoolClientId: 'figolre1lvqcpsq5g29ebmnee',
+      userPoolId: import.meta.env.VITE_USER_POOL_ID,
+      userPoolClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
       loginWith: {
         email: true,
       },

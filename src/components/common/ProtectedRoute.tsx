@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -23,19 +23,18 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     async function checkAuthState() {
       try {
         const user = await getCurrentUser();
+        const session = await fetchAuthSession();
 
-        let isAdmin = false;
-        if (requireAdmin) {
-          const attributes = await fetchUserAttributes();
-          isAdmin = attributes['custom:role'] === 'admin';
-        }
+        const groups = (session.tokens?.accessToken?.payload['cognito:groups'] as string[]) || [];
+        const isAdmin = groups.includes('admin');
 
         setAuthState({
           isAuthenticated: !!user,
           isLoading: false,
           isAdmin: isAdmin,
         });
-      } catch {
+      } catch (error) {
+        console.error('Auth check failed:', error);
         setAuthState({
           isAuthenticated: false,
           isLoading: false,
@@ -60,6 +59,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   }
 
   if (requireAdmin && !authState.isAdmin) {
+    console.warn('Unauthorized access attempt to admin route');
     return <Navigate to="/" replace />;
   }
 

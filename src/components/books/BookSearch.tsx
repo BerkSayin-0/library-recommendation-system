@@ -1,29 +1,31 @@
 import React, { useState } from 'react';
 
-/**
- * BookSearch component props
- */
-interface BookSearchProps {
-  onSearch: (query: string) => void;
+export interface SearchFilters {
+  genre: string;
+  rating: string;
+  year: string;
 }
 
-/**
- * Modern BookSearch component with beautiful glass morphism
- *
- * @example
- * <BookSearch onSearch={handleSearch} />
- */
-export function BookSearch({ onSearch }: BookSearchProps) {
+interface BookSearchProps {
+  onSearch: (query: string, filters: SearchFilters) => void;
+  availableGenres: string[];
+}
+
+export function BookSearch({ onSearch, availableGenres }: BookSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [genre, setGenre] = useState('');
+  const [rating, setRating] = useState('');
+  const [year, setYear] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(searchQuery);
+    onSearch(searchQuery, { genre, rating, year });
   };
 
   return (
     <div className="glass-effect rounded-2xl p-6 border border-white/20 shadow-xl">
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Search Bar Bölümü */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <div className="relative">
@@ -70,40 +72,52 @@ export function BookSearch({ onSearch }: BookSearchProps) {
           </button>
         </div>
 
-        {/* TODO: Implement filter logic */}
+        {/* Filters Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Genre</label>
-            <select className="input-modern">
+            <select
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              className="input-modern"
+            >
               <option value="">All Genres</option>
-              <option value="fiction">Fiction</option>
-              <option value="sci-fi">Science Fiction</option>
-              <option value="mystery">Mystery</option>
-              <option value="romance">Romance</option>
-              <option value="non-fiction">Non-Fiction</option>
+              {availableGenres.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Rating</label>
-            <select className="input-modern">
+            <select
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              className="input-modern"
+            >
               <option value="">All Ratings</option>
               <option value="4.5">4.5+ Stars</option>
               <option value="4.0">4.0+ Stars</option>
               <option value="3.5">3.5+ Stars</option>
+              <option value="3.0">3.0+ Stars</option>
+              <option value="2.0">2.0+ Stars</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Year</label>
-            <select className="input-modern">
-              <option value="">All Years</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="2020">2020</option>
-            </select>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Year Range</label>
+            <input
+              type="text"
+              placeholder="e.g. 2020-2025 or 2024"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              className="input-modern"
+            />
+            <p className="text-[10px] text-slate-400 mt-1 italic">
+              Use '-' for range (e.g. 2020-2025)
+            </p>
           </div>
         </div>
       </form>
