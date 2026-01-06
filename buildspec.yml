@@ -8,10 +8,15 @@ phases:
       - npm install
   build:
     commands:
-      - echo "REACT_APP_USER_POOL_ID=$REACT_APP_USER_POOL_ID" >> .env
-      - echo "REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID" >> .env
-      - echo "REACT_APP_API_URL=$REACT_APP_API_URL" >> .env
-      - echo "REACT_APP_REGION=us-east-1" >> .env
+      - |
+        echo "REACT_APP_USER_POOL_ID=$REACT_APP_USER_POOL_ID
+        REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID
+        REACT_APP_API_URL=$REACT_APP_API_URL
+        REACT_APP_REGION=$REACT_APP_REGION
+        VITE_USER_POOL_ID=$REACT_APP_USER_POOL_ID
+        VITE_CLIENT_ID=$REACT_APP_CLIENT_ID
+        VITE_API_URL=$REACT_APP_API_URL
+        VITE_REGION=$REACT_APP_REGION" > .env
       - npm run build
 artifacts:
   base-directory: dist
