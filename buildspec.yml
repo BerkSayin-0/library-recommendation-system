@@ -1,14 +1,19 @@
 version: 0.2
+
 phases:
   install:
     runtime-versions:
-      nodejs: 20
+      nodejs: 18
     commands:
       - npm install
   build:
     commands:
+      - echo "REACT_APP_USER_POOL_ID=$REACT_APP_USER_POOL_ID" >> .env
+      - echo "REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID" >> .env
+      - echo "REACT_APP_API_URL=$REACT_APP_API_URL" >> .env
+      - echo "REACT_APP_REGION=us-east-1" >> .env
       - npm run build
 artifacts:
+  base-directory: dist
   files:
     - '**/*'
-  base-directory: dist
