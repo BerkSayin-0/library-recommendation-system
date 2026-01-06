@@ -1,20 +1,32 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navigation } from './Navigation';
+import { useAuth } from '@/contexts/AuthContext'; // Context bağlantısı
 
 /**
  * Modern Header component with glass morphism effect
- *
- * Displays logo, navigation links, and user profile dropdown
+ * Updated with AWS Cognito Authentication logic
  */
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth(); // Kullanıcı verisini çekiyoruz
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+      setIsMobileMenuOpen(false);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <header className="glass-effect sticky top-0 z-50 border-b border-white/20 shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Logo - Senin tasarımın aynen korundu */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30 group-hover:shadow-xl group-hover:shadow-violet-500/40 transition-all duration-300 group-hover:scale-110">
@@ -41,20 +53,38 @@ export function Header() {
             <Navigation />
           </div>
 
-          {/* User Actions */}
+          {/* User Actions - Desktop (BURASI GÜNCELLENDİ) */}
           <div className="hidden md:flex items-center space-x-3">
-            <Link
-              to="/login"
-              className="text-slate-700 hover:text-violet-600 transition-colors font-semibold px-4 py-2 rounded-lg hover:bg-violet-50"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 font-semibold transform hover:-translate-y-0.5"
-            >
-              Sign Up
-            </Link>
+            {user ? (
+              // KULLANICI GİRİŞ YAPMIŞSA GÖRÜNECEK KISIM
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-semibold text-slate-700">
+                  Hi, <span className="text-violet-600">{user.name}</span>
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-slate-700 hover:text-red-600 transition-colors font-semibold px-4 py-2 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-100"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              // KULLANICI GİRİŞ YAPMAMIŞSA (Senin eski kodun)
+              <>
+                <Link
+                  to="/login"
+                  className="text-slate-700 hover:text-violet-600 transition-colors font-semibold px-4 py-2 rounded-lg hover:bg-violet-50"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 font-semibold transform hover:-translate-y-0.5"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -86,19 +116,39 @@ export function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/20 animate-slide-in">
             <Navigation mobile />
-            <div className="mt-4 space-y-2">
-              <Link
-                to="/login"
-                className="block text-slate-700 hover:text-violet-600 transition-colors py-2 px-4 rounded-lg hover:bg-violet-50 font-semibold"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="block bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all text-center font-semibold shadow-lg shadow-violet-500/30"
-              >
-                Sign Up
-              </Link>
+            <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
+              {user ? (
+                // MOBİL İÇİN GİRİŞ YAPMIŞ KULLANICI ARAYÜZÜ
+                <>
+                  <div className="px-4 py-2 text-sm text-slate-500 font-medium mb-2">
+                    Signed in as <span className="text-violet-600 font-bold">{user.name}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left text-red-600 hover:text-red-700 transition-colors py-2 px-4 rounded-lg hover:bg-red-50 font-semibold"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                // MOBİL İÇİN GİRİŞ YAPMAMIŞ (Senin eski kodun)
+                <>
+                  <Link
+                    to="/login"
+                    className="block text-slate-700 hover:text-violet-600 transition-colors py-2 px-4 rounded-lg hover:bg-violet-50 font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="block bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all text-center font-semibold shadow-lg shadow-violet-500/30"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
