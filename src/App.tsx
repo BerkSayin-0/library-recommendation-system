@@ -15,6 +15,7 @@ import { Admin } from './pages/Admin';
 import { NotFound } from './pages/NotFound';
 import { ReadingListDetail } from './pages/ReadingListDetail';
 import { VerifyEmail } from './pages/VerifyEmail';
+import { ForgotPassword } from './pages/ForgotPassword';
 
 /**
  * Main App component with routing, layout and notifications
@@ -34,7 +35,6 @@ function App() {
               <Route path="/books" element={<Books />} />
               <Route path="/books/:id" element={<BookDetail />} />
               <Route path="/recommendations" element={<Recommendations />} />
-
               {/* Sadece giriş yapmış kullanıcılar görebilir */}
               <Route
                 path="/reading-lists"
@@ -44,10 +44,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               {/* SADECE ADMIN rolüne sahip kullanıcılar girebilir */}
               <Route
                 path="/admin"
@@ -57,10 +56,8 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route path="/reading-lists/:id" element={<ReadingListDetail />} />
               <Route path="/verify" element={<VerifyEmail />} />
-
               {/* Hatalı URL'ler için 404 sayfası */}
               <Route path="*" element={<NotFound />} />
             </Routes>

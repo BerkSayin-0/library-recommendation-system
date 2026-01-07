@@ -2,6 +2,7 @@ import axios from 'axios';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { Book, ReadingList, Review } from '@/types';
 import { updateUserAttributes, updatePassword } from 'aws-amplify/auth';
+import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 
 const API_BASE_URL = 'https://4etlmjk252.execute-api.us-east-1.amazonaws.com/dev';
 
@@ -69,8 +70,19 @@ export async function deleteBook(id: string): Promise<void> {
 // --- RECOMMENDATIONS & OTHERS ---
 
 export const getRecommendations = async (query: string) => {
-  const response = await apiClient.post('/recommendations', { query });
-  return response.data;
+  try {
+    const session = await fetchAuthSession().catch(() => null);
+
+    const token = session?.tokens?.accessToken?.toString();
+
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+    const response = await apiClient.post('/recommendations', { query }, config);
+    return response.data;
+  } catch (error) {
+    console.error('AI Öneri Hatası:', error);
+    throw error;
+  }
 };
 
 export async function getReadingLists(): Promise<ReadingList[]> {
@@ -153,4 +165,27 @@ export async function updateEmailAttribute(newEmail: string) {
 // Şifre değiştirme
 export async function changeUserPassword(oldPassword: string, newPassword: string) {
   return await updatePassword({ oldPassword, newPassword });
+}
+
+//Şifremi Unuttum
+
+export async function handleResetPassword(username: string) {
+  try {
+    const output = await resetPassword({ username });
+    return output;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function handleConfirmResetPassword(
+  username: string,
+  confirmationCode: string,
+  newPassword: string
+) {
+  try {
+    await confirmResetPassword({ username, confirmationCode, newPassword });
+  } catch (error) {
+    console.error(error);
+  }
 }
