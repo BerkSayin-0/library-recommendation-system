@@ -12,7 +12,9 @@ Proje tamamen **Serverless** (Sunucusuz) mimari üzerine inşa edilmiştir:
 - **Kimlik Doğrulama:** AWS Cognito User Pool
 - **Backend API:** AWS API Gateway + AWS Lambda
 - **Veritabanı:** Amazon DynamoDB
-- **Yapay Zeka:** Amazon Bedrock (Titan/Claude modelleri)
+- **Yapay Zeka:** Amazon Bedrock (Claude 3)
+
+- ![Architecture Diagram](./architecture-diagram.png)
 
 
 ## 🛠️ API Uç Noktaları (Endpoints)
@@ -27,7 +29,7 @@ Proje tamamen **Serverless** (Sunucusuz) mimari üzerine inşa edilmiştir:
 4. `npm run dev` ile başlatın.
 
 ## 👥 Katkıda Bulunanlar
-- **Berk Sayın** - 
+- **Berk Sayın**
 
 ## 📄 Lisans
 Bu proje MIT Lisansı ile lisanslanmıştır.
