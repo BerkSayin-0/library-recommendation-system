@@ -14,7 +14,7 @@ Proje tamamen **Serverless** (Sunucusuz) mimari üzerine inşa edilmiştir:
 - **Veritabanı:** Amazon DynamoDB
 - **Yapay Zeka:** Amazon Bedrock (Claude 3)
 
-- ![Architecture Diagram](./architecture-diagram.png)
+- ![Architecture Diagram](./architecture-diagram.png.png)
 
 
 ## 🛠️ API Uç Noktaları (Endpoints)
